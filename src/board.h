@@ -10,7 +10,10 @@ public:
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 	void add_piece(const Piece& piece);
 	void remove_piece(const Piece& piece);
-	bool collides(const Piece& piece);
+	bool collides(const Piece& piece) const;
+	sf::Vector2i rotate(const sf::Vector2i& piece_coord, const sf::Vector2f& center, const int rotation) const;
+	sf::Vector2i piece_coord_to_board_coord(const sf::Vector2i& piece_coord, const Piece& piece) const;
+
 	inline int get_height()
 	{
 		return rows;

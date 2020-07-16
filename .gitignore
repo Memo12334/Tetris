@@ -1,5 +1,5 @@
 Debug/
 *.vcxproj.user
 .vs/
-sfml-*
+SFML/
 *.dll

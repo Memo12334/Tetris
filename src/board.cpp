@@ -35,8 +35,12 @@ void Board::add_piece(const Piece& piece)
 	{
 		for (int y = 0; y < 4; y++)
 		{
-			if (piece.shape[y][x])
-				grid[piece.loc.x + x][piece.loc.y + y] = piece.color;
+			if (!piece.shape[y][x]) continue;
+
+			const sf::Vector2i piece_coord{ x, y };
+			const sf::Vector2i board_coord = piece_coord_to_board_coord(piece_coord, piece);
+
+			grid[board_coord.x][board_coord.y] = piece.color;
 		}
 	}
 }
@@ -47,22 +51,29 @@ void Board::remove_piece(const Piece& piece)
 	{
 		for (int y = 0; y < 4; y++)
 		{
-			if (piece.shape[y][x])
-				grid[piece.loc.x + x][piece.loc.y + y] = PieceColor::EMPTY;
+			if (!piece.shape[y][x]) continue;
+
+			const sf::Vector2i piece_coord{ x, y };
+			const sf::Vector2i board_coord = piece_coord_to_board_coord(piece_coord, piece);
+
+			grid[board_coord.x][board_coord.y] = PieceColor::EMPTY;
 		}
 	}
 }
 
-bool Board::collides(const Piece& piece)
+bool Board::collides(const Piece& piece) const
 {
 	for (int i = 0; i < 4; i++)
 	{
 		for (int j = 0; j < 4; j++)
 		{
-			if (piece.shape[i][j] != 0)
+			if (piece.shape[j][i] != 0)
 			{
-				int y = piece.loc.y + i;
-				int x = piece.loc.x + j;
+				const sf::Vector2i piece_coord{ i, j };
+				const sf::Vector2i board_coord = piece_coord_to_board_coord(piece_coord, piece);
+
+				const int y = board_coord.y;
+				const int x = board_coord.x;
 				if (y < 0) return true;
 				if (y >= rows) return true;
 				if (x < 0) return true;
@@ -76,6 +87,43 @@ bool Board::collides(const Piece& piece)
 	}
 	return false;
 }
+
+sf::Vector2i Board::rotate(const sf::Vector2i& piece_coord, const sf::Vector2f& center, const int rotation) const
+{
+	sf::Vector2f relative_center = sf::Vector2f(piece_coord) - center;
+	float temp;
+	
+	switch (rotation)
+	{
+	case 0:
+		relative_center += center;
+		break;
+	case 90:
+		temp = relative_center.x;
+		relative_center.x = -relative_center.y;
+		relative_center.y = temp;
+		relative_center += center;
+		break;
+	case 180:
+		relative_center.x = -relative_center.x;
+		relative_center.y = -relative_center.y;
+		relative_center += center;
+	case 270:
+		temp = -relative_center.x;
+		relative_center.x = relative_center.y;
+		relative_center.y = temp;
+		relative_center += center;
+		break;
+	}
+
+	return sf::Vector2i(relative_center);
+}
+
+sf::Vector2i Board::piece_coord_to_board_coord(const sf::Vector2i& piece_coord, const Piece& piece) const
+{
+	return piece.loc + rotate(piece_coord, piece.center, piece.rotation);
+}
+
 
 
 

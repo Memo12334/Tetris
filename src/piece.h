@@ -18,5 +18,6 @@ struct Piece
 	std::array<std::array<int, 4>, 4> shape;
 	sf::Vector2i loc;
 	PieceColor color;
-	int rotate;	
+	sf::Vector2f center;
+	int rotation;
 };
