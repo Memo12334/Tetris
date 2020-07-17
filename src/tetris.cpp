@@ -59,14 +59,36 @@ void Tetris::process_events()
 
 			else if (event.key.code == sf::Keyboard::X)
 			{
-				if (piece.rotation == 0)
-					piece.rotation = 90;
-				else if (piece.rotation == 90)
-					piece.rotation = 180;
-				else if (piece.rotation == 180)
-					piece.rotation = 270;
-				else
-					piece.rotation = 0;
+				int old_rotation = piece.rotation;
+				piece.rotation = (piece.rotation + 1) % 4;
+				if (board.collides(piece))
+				{
+					piece.loc.x -= 1;
+					if (board.collides(piece))
+						piece.loc.x += 2;
+					if (board.collides(piece))
+					{
+						piece.loc.x -= 1;
+						piece.rotation = (piece.rotation - 2) & 3;
+					}
+				}
+			}
+
+			else if (event.key.code == sf::Keyboard::Z)
+			{
+				int old_rotation = piece.rotation;
+				piece.rotation = (piece.rotation - 1) & 3;
+				if (board.collides(piece))
+				{
+					piece.loc.x -= 1;
+					if (board.collides(piece))
+						piece.loc.x += 2;
+					if (board.collides(piece))
+					{
+						piece.loc.x -= 1;
+						piece.rotation = (piece.rotation + 2) % 4;
+					}
+				}
 			}
 		}
 	}
@@ -74,7 +96,6 @@ void Tetris::process_events()
 
 void Tetris::update()
 {
-
 }
 
 void Tetris::render()
@@ -96,7 +117,7 @@ void Tetris::reset()
 	pieces[0] = { { {{1,1,1,1},{0,0,0,0},{0,0,0,0},{0,0,0,0}} }, sf::Vector2i(5,0), PieceColor::CYAN, {1.f,0.f},0 };
 	pieces[1] = { { {{1,0,0,0},{1,1,1,0},{0,0,0,0},{0,0,0,0}} }, sf::Vector2i(5,0), PieceColor::BLUE, {0.f,1.f},0 };
 	pieces[2] = { { {{0,0,0,1},{0,1,1,1},{0,0,0,0},{0,0,0,0}} }, sf::Vector2i(5,0), PieceColor::ORANGE, {3.f,1.f},0 };
-	pieces[3] = { { {{1,1,0,0},{1,1,0,0},{0,0,0,0},{0,0,0,0}} }, sf::Vector2i(5,0), PieceColor::YELLOW, {1.5f,1.5f},0 };
+	pieces[3] = { { {{1,1,0,0},{1,1,0,0},{0,0,0,0},{0,0,0,0}} }, sf::Vector2i(5,0), PieceColor::YELLOW, {0.5,0.5},0 };
 	pieces[4] = { { {{0,0,1,1},{0,1,1,0},{0,0,0,0},{0,0,0,0}} }, sf::Vector2i(5,0), PieceColor::GREEN, {2.f,1.f},0 };
 	pieces[5] = { { {{0,1,0,0},{1,1,1,0},{0,0,0,0},{0,0,0,0}} }, sf::Vector2i(5,0), PieceColor::PURPLE, {1.f,0.f},0 };
 	pieces[6] = { { {{1,1,0,0},{0,1,1,0},{0,0,0,0},{0,0,0,0}} }, sf::Vector2i(5,0), PieceColor::RED, {1.f,0.f},0 };

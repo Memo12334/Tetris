@@ -71,13 +71,12 @@ bool Board::collides(const Piece& piece) const
 			{
 				const sf::Vector2i piece_coord{ i, j };
 				const sf::Vector2i board_coord = piece_coord_to_board_coord(piece_coord, piece);
-
+				
 				const int y = board_coord.y;
 				const int x = board_coord.x;
-				if (y < 0) return true;
-				if (y >= rows) return true;
-				if (x < 0) return true;
-				if (x >= columns) return true;
+
+				if (y < 0 || y >= rows || x < 0 || x >= columns)
+					return true;
 
 				// collision with existing pieces
 				if (grid[x][y] != PieceColor::EMPTY)
@@ -95,28 +94,24 @@ sf::Vector2i Board::rotate(const sf::Vector2i& piece_coord, const sf::Vector2f& 
 	
 	switch (rotation)
 	{
-	case 0:
-		relative_center += center;
+	case 0:	// 0
 		break;
-	case 90:
+	case 1:	// 90
 		temp = relative_center.x;
 		relative_center.x = -relative_center.y;
 		relative_center.y = temp;
-		relative_center += center;
 		break;
-	case 180:
+	case 2:	// 180
 		relative_center.x = -relative_center.x;
 		relative_center.y = -relative_center.y;
-		relative_center += center;
-	case 270:
+		break;
+	case 3:	// 270
 		temp = -relative_center.x;
 		relative_center.x = relative_center.y;
 		relative_center.y = temp;
-		relative_center += center;
 		break;
 	}
-
-	return sf::Vector2i(relative_center);
+	return sf::Vector2i(relative_center + center);
 }
 
 sf::Vector2i Board::piece_coord_to_board_coord(const sf::Vector2i& piece_coord, const Piece& piece) const
