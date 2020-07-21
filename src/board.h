@@ -11,6 +11,9 @@ public:
 	void add_piece(const Piece& piece);
 	void remove_piece(const Piece& piece);
 	bool collides(const Piece& piece) const;
+	void clear_row();
+	bool is_full(int row) const;
+	void drop_row(int _row);
 	sf::Vector2i rotate(const sf::Vector2i& piece_coord, const sf::Vector2f& center, const int rotation) const;
 	sf::Vector2i piece_coord_to_board_coord(const sf::Vector2i& piece_coord, const Piece& piece) const;
 

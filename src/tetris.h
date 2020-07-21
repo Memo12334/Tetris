@@ -27,4 +27,7 @@ private:
 	std::random_device rd;
 	std::mt19937 rng;
 	std::uniform_int_distribution<int> dist;
+	
+	const sf::Time time_per_frame = sf::seconds(1.f / 60.f);
+	double timer = 1500;
 };

@@ -1,8 +1,9 @@
+#include <thread>
 #include "tetris.h"
 
 Tetris::Tetris()
 	:
-	window(sf::VideoMode(330, 580), "Tetris"),
+	window(sf::VideoMode(550, 550), "Tetris"),
 	rng(rd()),
 	dist(0,6)
 {
@@ -12,11 +13,18 @@ Tetris::Tetris()
 
 void Tetris::run()
 {
-	window.setFramerateLimit(15);
+	sf::Clock clock;
+	sf::Time time_since_last_update = sf::Time::Zero;
 	while (window.isOpen())
 	{
 		process_events();
-		update();
+		time_since_last_update += clock.restart();
+		while (time_since_last_update > time_per_frame)
+		{
+			time_since_last_update -= time_per_frame;
+			process_events();
+			update();
+		}
 		render();
 	}
 }
@@ -49,17 +57,11 @@ void Tetris::process_events()
 			{
 				piece.loc.y++;
 				if (board.collides(piece))
-				{
 					piece.loc.y--;
-					reset();
-					board.add_piece(piece);
-					spawn_piece();
-				}
 			}
 
 			else if (event.key.code == sf::Keyboard::X)
 			{
-				int old_rotation = piece.rotation;
 				piece.rotation = (piece.rotation + 1) % 4;
 				if (board.collides(piece))
 				{
@@ -69,14 +71,13 @@ void Tetris::process_events()
 					if (board.collides(piece))
 					{
 						piece.loc.x -= 1;
-						piece.rotation = (piece.rotation - 2) & 3;
+						piece.rotation = (piece.rotation - 1) & 3;
 					}
 				}
 			}
 
 			else if (event.key.code == sf::Keyboard::Z)
 			{
-				int old_rotation = piece.rotation;
 				piece.rotation = (piece.rotation - 1) & 3;
 				if (board.collides(piece))
 				{
@@ -86,7 +87,7 @@ void Tetris::process_events()
 					if (board.collides(piece))
 					{
 						piece.loc.x -= 1;
-						piece.rotation = (piece.rotation + 2) % 4;
+						piece.rotation = (piece.rotation + 1) % 4;
 					}
 				}
 			}
@@ -96,6 +97,21 @@ void Tetris::process_events()
 
 void Tetris::update()
 {
+	timer -= 100;
+	if (timer == 0)
+	{
+		piece.loc.y++;
+		timer = 1500;
+	}
+	
+	if (board.collides(piece))
+	{
+		piece.loc.y--;
+		reset();
+		board.add_piece(piece);
+		spawn_piece();
+	}
+	board.clear_row();
 }
 
 void Tetris::render()

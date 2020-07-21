@@ -15,15 +15,24 @@ Board::Board()
 void Board::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
 	sf::RectangleShape rect(sf::Vector2f(cell_size, cell_size));
-	rect.setOutlineColor(sf::Color::White);
-	rect.setOutlineThickness(-1.f);
 
 	for (int x = 0; x < columns; x++)
 	{
 		for (int y = 0; y < rows; y++)
 		{
-			rect.setFillColor(cell_color[grid[x][y]]);
-			rect.setPosition(x * cell_size, y * cell_size);
+			if (x == 0 || x == columns - 1 || y == rows - 1)
+			{
+				rect.setOutlineThickness(0.f);
+				rect.setFillColor({ 128,128,128 });
+			}
+			else 
+			{
+				rect.setOutlineColor(sf::Color::Black);
+				rect.setOutlineThickness(-1.f);
+				rect.setFillColor(cell_color[grid[x][y]]);
+			}
+		
+			rect.setPosition(x * cell_size, y * cell_size);	
 			target.draw(rect, states);
 		}
 	}
@@ -75,7 +84,7 @@ bool Board::collides(const Piece& piece) const
 				const int y = board_coord.y;
 				const int x = board_coord.x;
 
-				if (y < 0 || y >= rows || x < 0 || x >= columns)
+				if (y < 0 || y == rows - 1 || x < 1 || x == columns - 1)
 					return true;
 
 				// collision with existing pieces
@@ -118,6 +127,46 @@ sf::Vector2i Board::piece_coord_to_board_coord(const sf::Vector2i& piece_coord, 
 {
 	return piece.loc + rotate(piece_coord, piece.center, piece.rotation);
 }
+
+void Board::clear_row()
+{
+	for (int row = rows - 1; row >= 0; row--)
+	{
+		if (is_full(row))
+		{
+			for (int column = 1; column < columns - 1; column++)
+			{
+				grid[column][row] = PieceColor::EMPTY;
+			}
+			drop_row(row);
+		}
+	}
+}
+
+bool Board::is_full(int row) const
+{
+	for (int column = 1; column < columns - 1; column++)
+	{
+		if (grid[column][row] == PieceColor::EMPTY)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+void Board::drop_row(int _row)
+{
+	for (int column = 1; column < columns - 1; column++)
+	{
+		for (int row = _row; row > 0; row--)
+		{
+			grid[column][row] = grid[column][row - 1];
+			grid[column][row - 1] = PieceColor::EMPTY;
+		}
+	}
+}
+
 
 
 
