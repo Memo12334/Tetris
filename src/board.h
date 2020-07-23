@@ -14,8 +14,14 @@ public:
 	void clear_row();
 	bool is_full(int row) const;
 	void drop_row(int _row);
+	void set_wall_color(const sf::Color& color);
 	sf::Vector2i rotate(const sf::Vector2i& piece_coord, const sf::Vector2f& center, const int rotation) const;
 	sf::Vector2i piece_coord_to_board_coord(const sf::Vector2i& piece_coord, const Piece& piece) const;
+	
+	inline int get_count_score()
+	{
+		return count_score;
+	}
 
 	inline int get_height()
 	{
@@ -33,4 +39,7 @@ private:
 
 	PieceColor grid[columns][rows] = {};
 	std::array<sf::Color, 8> cell_color;
+
+	int count_score = 0;
+	sf::Color color_wall;
 };

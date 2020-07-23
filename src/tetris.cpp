@@ -1,14 +1,41 @@
-#include <thread>
+#include <iostream>
+#include <string>
 #include "tetris.h"
 
 Tetris::Tetris()
 	:
 	window(sf::VideoMode(550, 550), "Tetris"),
 	rng(rd()),
-	dist(0,6)
+	dist(0, 6),
+	game_over( false )
 {
 	reset();
-	spawn_piece();
+	set_next_piece();
+	set_piece();
+	next_piece_board.set_wall_color(sf::Color::Transparent);
+
+	if (!font.loadFromFile("fonts/Squarewave.ttf"))
+		std::cerr << "failed font\n";
+
+	highscore.text.setFont(font);
+	highscore.text.setString("Score");
+	highscore.text.setPosition({ 400,50 });
+
+	highscore.cur_score.setFont(font);
+	highscore.cur_score.setCharacterSize(50);
+	highscore.cur_score.setPosition({ 415,80 });
+	highscore.score = 0;
+
+	game_over_msg.setFont(font);
+	game_over_msg.setString("Game Over!");
+	game_over_msg.setPosition({ 250,250 });
+
+	next_shape_msg.setFont(font);
+	next_shape_msg.setString("Next Shape");
+	next_shape_msg.setPosition({ 375,300 });
+
+	trans.scale({ 0.5,0.5 });
+	trans.translate(675, 750);
 }
 
 void Tetris::run()
@@ -107,25 +134,49 @@ void Tetris::update()
 	if (board.collides(piece))
 	{
 		piece.loc.y--;
-		reset();
 		board.add_piece(piece);
-		spawn_piece();
+		set_piece();
 	}
 	board.clear_row();
+
+	highscore.score = board.get_count_score();
+	highscore.cur_score.setString(std::to_string(highscore.score));
 }
 
 void Tetris::render()
 {
 	window.clear();
-	board.add_piece(piece);
-	window.draw(board);
+
+	if (!game_over)
+	{
+		board.add_piece(piece);
+		next_piece_board.add_piece(next_piece);
+		window.draw(board);
+		window.draw(next_piece_board, trans);
+		window.draw(highscore.text);
+		window.draw(highscore.cur_score);
+		window.draw(next_shape_msg);
+		board.remove_piece(piece);
+		next_piece_board.remove_piece(next_piece);
+	}
+	else
+		window.draw(game_over_msg);
+
 	window.display();
-	board.remove_piece(piece);
 }
 
-void Tetris::spawn_piece()
+void Tetris::set_piece()
 {
-	piece = pieces[dist(rng)];
+	piece = next_piece;
+	set_next_piece();
+
+	if (board.collides(piece))
+		game_over = true;
+}
+
+void Tetris::set_next_piece()
+{
+	next_piece = pieces[dist(rng)];
 }
 
 void Tetris::reset()

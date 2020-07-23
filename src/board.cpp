@@ -1,6 +1,8 @@
 #include "board.h"
 
 Board::Board()
+	:
+	color_wall{128,128,128}
 {
 	cell_color[PieceColor::EMPTY]  =	sf::Color::Black;
 	cell_color[PieceColor::CYAN]   =	sf::Color::Cyan;
@@ -23,7 +25,7 @@ void Board::draw(sf::RenderTarget& target, sf::RenderStates states) const
 			if (x == 0 || x == columns - 1 || y == rows - 1)
 			{
 				rect.setOutlineThickness(0.f);
-				rect.setFillColor({ 128,128,128 });
+				rect.setFillColor(color_wall);
 			}
 			else 
 			{
@@ -134,6 +136,7 @@ void Board::clear_row()
 	{
 		if (is_full(row))
 		{
+			count_score++;
 			for (int column = 1; column < columns - 1; column++)
 			{
 				grid[column][row] = PieceColor::EMPTY;
@@ -165,6 +168,11 @@ void Board::drop_row(int _row)
 			grid[column][row - 1] = PieceColor::EMPTY;
 		}
 	}
+}
+
+void Board::set_wall_color(const sf::Color& color)
+{
+	color_wall = color;
 }
 
 
